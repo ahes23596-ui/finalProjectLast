@@ -1,0 +1,74 @@
+@import url('https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100..900;1,100..900&display=swap');
+@import "tailwindcss";
+
+
+
+*{
+  font-family: Roboto;
+}
+
+
+/* Fancy Hover Button */
+.fancy-hover-button {
+  position: relative;
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  padding: 0.625rem 2rem; /* py-2.5 px-8 */
+  overflow: hidden;
+  color: white;
+  background-color: #1e2939; /* bg-gray-800 */
+  border-radius: 25px; /* rounded-md */
+  font-weight: bold;
+  letter-spacing: 1px; /* tracking-tighter */
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin-top: 1rem;
+}
+
+/* Main animated circle background */
+.fancy-hover-button span.bg-circle {
+  position: absolute;
+  width: 0;
+  height: 0;
+  border-radius: 50%;
+  background-color: #1D4ED8; /* bg-orange-600 */
+  transition: all 0.5s ease-out;
+}
+
+.fancy-hover-button:hover span.bg-circle {
+  width: 14rem; /* w-56 */
+  height: 14rem; /* h-56 */
+}
+
+/* Optional SVG decorations */
+.fancy-hover-button span.svg-left,
+.fancy-hover-button span.svg-right {
+  position: absolute;
+  width: auto;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Top gradient overlay */
+.fancy-hover-button span.overlay-gradient {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  margin-top: -0.25rem; /* -mt-1 */
+
+  opacity: 0.3;
+  background: linear-gradient(to bottom, transparent, transparent, #e5e7eb); /* from-transparent via-transparent to-gray-200 */
+}
+
+/* Button text */
+.fancy-hover-button span.button-text {
+  position: relative;
+  z-index: 10;
+  font-size: 1rem; /* text-base */
+  font-weight: 600; /* font-semibold */
+}
+
+
+
