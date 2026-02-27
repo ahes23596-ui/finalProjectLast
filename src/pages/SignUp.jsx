@@ -1,12 +1,20 @@
 import React, { useState } from "react";
 import { Eye, EyeOff, Clock } from "lucide-react";
-import { Link } from "react-router-dom";
-
+import { Link, useNavigate } from "react-router-dom";
+import AxiosWrapper from "../Https/AxiosWrapper"; 
 
 function SignUp() {
+  const navigate = useNavigate();
+
+  // ================================
+  // 🔹 Show/Hide Password States
+  // ================================
   const [showPass, setShowPass] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
 
+  // ================================
+  // 🔹 Form State
+  // ================================
   const [form, setForm] = useState({
     name: "",
     email: "",
@@ -15,35 +23,89 @@ function SignUp() {
     agree: false,
   });
 
+  // ================================
+  // 🔹 Error + Loading State
+  // ================================
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  // ================================
+  // 🔹 Handle Input Change
+  // ================================
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
+
     setForm({
       ...form,
       [name]: type === "checkbox" ? checked : value,
     });
   };
 
-  const handleSubmit = (e) => {
+  // ================================
+  // 🔹 Handle Submit
+  // ================================
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
+    // Reset previous error
+    setError("");
+
+    // ============================
+    // ✅ Frontend Validation
+    // ============================
+
     if (form.password !== form.confirm) {
-      alert("Passwords do not match");
+      setError("Passwords do not match");
       return;
     }
 
     if (!form.agree) {
-      alert("You must agree to Terms");
+      setError("You must agree to Terms & Conditions");
       return;
     }
 
-    console.log(form);
+    try {
+      setLoading(true);
+
+      // ============================
+      // ✅ Send data to backend
+      // ============================
+      const response = await AxiosWrapper.post("/auth/register", {
+        name: form.name,
+        email: form.email,
+        password: form.password,
+      });
+
+      // ============================
+      // ✅ If backend returns token
+      // ============================
+      const { token } = response.data;
+
+      // Save token
+      localStorage.setItem("token", token);
+
+      // Go to dashboard
+      navigate("/DashBoard");
+
+    } catch (err) {
+      // ============================
+      // ❌ Handle Backend Errors
+      // ============================
+      if (err.response && err.response.data.message) {
+        setError(err.response.data.message);
+      } else {
+        setError("Registration failed. Please try again.");
+      }
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-slate-200 px-4 ">
+    <div className="min-h-screen flex items-center justify-center bg-slate-200 px-4">
       <div className="bg-white shadow-xl rounded-2xl w-full mt-30 mb-20 max-w-md p-8">
 
-        {/* Logo + Title */}
+        {/* ================= Logo + Title ================= */}
         <div className="flex flex-col items-center mb-6">
           <Clock className="w-8 h-8 text-blue-500" />
           <h1 className="text-2xl font-bold mt-2">MediRemind</h1>
@@ -52,7 +114,7 @@ function SignUp() {
           </h2>
         </div>
 
-        {/* Form */}
+        {/* ================= Form ================= */}
         <form onSubmit={handleSubmit} className="space-y-4">
 
           {/* Full Name */}
@@ -137,18 +199,26 @@ function SignUp() {
             />
             <span>
               I agree to the{" "}
-              <a href="#" className="text-blue-500">Terms of Service</a>{" "}
+              <span className="text-blue-500">Terms of Service</span>{" "}
               and{" "}
-              <a href="#" className="text-blue-500">Privacy Policy</a>.
+              <span className="text-blue-500">Privacy Policy</span>.
             </span>
           </div>
 
-          {/* Submit */}
+          {/* ================= Error Message ================= */}
+          {error && (
+            <p className="text-red-500 text-sm text-center">
+              {error}
+            </p>
+          )}
+
+          {/* Submit Button */}
           <button
             type="submit"
-            className="w-full bg-blue-500 hover:bg-blue-600 text-white py-3 rounded-lg font-medium transition cursor-pointer"
+            disabled={loading}
+            className="w-full bg-blue-500 hover:bg-blue-600 text-white py-3 rounded-lg font-medium transition disabled:opacity-50"
           >
-            Create Account
+            {loading ? "Creating Account..." : "Create Account"}
           </button>
         </form>
 
@@ -156,9 +226,8 @@ function SignUp() {
         <p className="text-center text-sm text-gray-600 mt-4">
           Already have an account?{" "}
           <Link to="/login" className="text-blue-500 hover:underline">
-             Log In
+            Log In
           </Link>
-
         </p>
       </div>
     </div>
